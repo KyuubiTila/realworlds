@@ -1,29 +1,31 @@
-import { Profile } from 'src/profile/profile.entity';
+import { User } from 'src/auth/user.entity';
 import {
   BaseEntity,
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   OneToOne,
   PrimaryGeneratedColumn,
-  Unique,
   UpdateDateColumn,
 } from 'typeorm';
 
 @Entity()
-@Unique(['username'])
-export class User extends BaseEntity {
+export class Profile extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
-  username: string;
+  bio: string;
 
   @Column()
-  email: string;
+  image: string;
 
   @Column()
-  password: string;
+  following: number;
+
+  @Column()
+  followers: number;
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
@@ -35,6 +37,7 @@ export class User extends BaseEntity {
   })
   updatedAt: Date;
 
-  @OneToOne(() => Profile, (profile) => profile.user, { cascade: true })
-  profile: Profile;
+  @OneToOne(() => User, (user) => user.profile)
+  @JoinColumn()
+  user: User;
 }
