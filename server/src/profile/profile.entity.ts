@@ -7,10 +7,12 @@ import {
   JoinColumn,
   OneToOne,
   PrimaryGeneratedColumn,
+  Unique,
   UpdateDateColumn,
 } from 'typeorm';
 
 @Entity()
+@Unique(['user'])
 export class Profile extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
@@ -21,10 +23,10 @@ export class Profile extends BaseEntity {
   @Column()
   image: string;
 
-  @Column()
+  @Column({ default: 0 })
   following: number;
 
-  @Column()
+  @Column({ default: 0 })
   followers: number;
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
@@ -40,4 +42,7 @@ export class Profile extends BaseEntity {
   @OneToOne(() => User, (user) => user.profile)
   @JoinColumn()
   user: User;
+
+  @Column()
+  userId: number;
 }
