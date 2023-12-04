@@ -1,3 +1,4 @@
+import { Article } from 'src/article/article.entity';
 import { User } from 'src/auth/user.entity';
 import {
   BaseEntity,
@@ -5,6 +6,7 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   Unique,
@@ -42,6 +44,9 @@ export class Profile extends BaseEntity {
   @OneToOne(() => User, (user) => user.profile)
   @JoinColumn()
   user: User;
+
+  @OneToMany(() => Article, (article) => article.user)
+  articles: Article[];
 
   @Column()
   userId: number;
