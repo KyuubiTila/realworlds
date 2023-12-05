@@ -105,4 +105,37 @@ export class ArticleController {
       throw new NotFoundException('Failed to delete article');
     }
   }
+
+  @Post(':id/toggle-like')
+  async toggleLike(
+    @Param('id', ParseIntPipe) articleId: number,
+    @GetUser() user: User,
+  ) {
+    try {
+      return await this.articleService.toggleLike(articleId, user);
+    } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException
+      ) {
+        throw new NotFoundException(error.message);
+      }
+      throw new NotFoundException('Failed to toggle like');
+    }
+  }
+
+  @Delete(':id/toggle-unlike')
+  async toggleUnlike(
+    @Param('id', ParseIntPipe) articleId: number,
+    @GetUser() user: User,
+  ) {
+    try {
+      return await this.articleService.toggleUnlike(articleId, user);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new NotFoundException(error.message);
+      }
+      throw new NotFoundException('Failed to toggle unlike');
+    }
+  }
 }

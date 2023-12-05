@@ -1,5 +1,6 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import * as config from 'config';
+import { ArticleFavorited } from 'src/article/article-favourited.entity';
 import { Article } from 'src/article/article.entity';
 import { Tag } from 'src/article/tag.entity';
 import { User } from 'src/auth/user.entity';
@@ -14,6 +15,6 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
   username: process.env.RDS_USERNAME || dbConfig.username,
   password: process.env.RDS_PASSWORD || dbConfig.password,
   database: process.env.RDS_DB_NAME || dbConfig.database,
-  entities: [User, Profile, Article, Tag],
+  entities: [User, Profile, Article, Tag, ArticleFavorited],
   synchronize: process.env.TYPEORM_SYNC || dbConfig.synchronize,
 };

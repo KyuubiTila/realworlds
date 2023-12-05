@@ -1,9 +1,11 @@
+import { ArticleFavorited } from 'src/article/article-favourited.entity';
 import { Profile } from 'src/profile/profile.entity';
 import {
   BaseEntity,
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   Unique,
@@ -37,4 +39,7 @@ export class User extends BaseEntity {
 
   @OneToOne(() => Profile, (profile) => profile.user, { cascade: true })
   profile: Profile;
+
+  @OneToMany(() => ArticleFavorited, (favorited) => favorited.user)
+  favoritedArticles: ArticleFavorited[];
 }

@@ -1,3 +1,4 @@
+import { ArticleFavorited } from 'src/article/article-favourited.entity';
 import { Profile } from 'src/profile/profile.entity';
 import {
   BaseEntity,
@@ -49,6 +50,9 @@ export class Article extends BaseEntity {
 
   @ManyToOne(() => Profile, (profile) => profile.articles)
   user: Profile;
+
+  @OneToMany(() => ArticleFavorited, (favorited) => favorited.article)
+  favoritedBy: ArticleFavorited[];
 
   @Column()
   userId: number;

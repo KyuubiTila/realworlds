@@ -6,6 +6,7 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ArticleFavorited } from 'src/article/article-favourited.entity';
 import { User } from 'src/auth/user.entity';
 import { Repository } from 'typeorm';
 import { Article } from './article.entity';
@@ -17,6 +18,8 @@ export class ArticleService {
   constructor(
     @InjectRepository(Article)
     private articleRepository: Repository<Article>,
+    @InjectRepository(ArticleFavorited)
+    private articleFavoritedRepository: Repository<ArticleFavorited>,
   ) {}
 
   async createArticle(
@@ -113,5 +116,83 @@ export class ArticleService {
     }
 
     await this.articleRepository.remove(article);
+  }
+
+  async toggleLike(articleId: number, user: User): Promise<Article> {
+    try {
+      const article = await this.getArticleById(articleId, user);
+
+      if (!article) {
+        throw new Error('article not found');
+      }
+
+      const isLiked = await this.articleFavoritedRepository.findOne({
+        where: {
+          userId: user.id,
+          articleId: articleId,
+        },
+      });
+
+      if (isLiked) {
+        throw new ConflictException('Article is liked');
+      } else {
+        // User has not liked the article, so like it
+        const newFavorite = this.articleFavoritedRepository.create({
+          user,
+          article,
+        });
+        await this.articleFavoritedRepository.save(newFavorite);
+      }
+
+      await article.reload();
+
+      return article;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new NotFoundException(error.message);
+      } else if (error instanceof ConflictException) {
+        throw new ConflictException(error.message);
+      } else {
+        throw new InternalServerErrorException(
+          'Error toggling like on article',
+        );
+      }
+    }
+  }
+
+  async toggleUnlike(articleId: number, user: User): Promise<Article> {
+    try {
+      const article = await this.getArticleById(articleId, user);
+
+      if (!article) {
+        throw new Error('article not found');
+      }
+
+      const isLiked = await this.articleFavoritedRepository.findOne({
+        where: {
+          userId: user.id,
+          articleId: articleId,
+        },
+      });
+
+      if (!isLiked) {
+        throw new NotFoundException('Article is not liked');
+      } else {
+        // User has liked the article, so unlike it
+        await this.articleFavoritedRepository.remove(isLiked);
+      }
+
+      await article.reload();
+
+      return article;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new NotFoundException(error.message);
+      } else {
+        throw new InternalServerErrorException(
+          'Error toggling unlike on article',
+        );
+      }
+    }
   }
 }
