@@ -1,33 +1,22 @@
-import { User } from 'src/auth/user.entity';
 import {
   BaseEntity,
-  Column,
-  CreateDateColumn,
   Entity,
-  JoinColumn,
-  OneToOne,
+  ManyToOne,
   PrimaryGeneratedColumn,
-  Unique,
+  CreateDateColumn,
   UpdateDateColumn,
+  Column,
 } from 'typeorm';
+import { User } from 'src/auth/user.entity';
+import { Article } from 'src/article/article.entity';
 
-@Entity()
-@Unique(['user'])
-export class Profile extends BaseEntity {
+@Entity('comments')
+export class Comment extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
-  bio: string;
-
-  @Column()
-  image: string;
-
-  @Column({ default: 0 })
-  following: number;
-
-  @Column({ default: 0 })
-  followers: number;
+  body: string;
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
@@ -39,10 +28,15 @@ export class Profile extends BaseEntity {
   })
   updatedAt: Date;
 
-  @OneToOne(() => User, (user) => user.profile)
-  @JoinColumn()
+  @ManyToOne(() => User, (user) => user.comments)
   user: User;
+
+  @ManyToOne(() => Article, (article) => article.comments)
+  article: Article;
 
   @Column()
   userId: number;
+
+  @Column()
+  articleId: number;
 }

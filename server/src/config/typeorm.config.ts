@@ -4,6 +4,7 @@ import { ArticleFavorited } from 'src/article/article-favourited.entity';
 import { Article } from 'src/article/article.entity';
 import { Tag } from 'src/article/tag.entity';
 import { User } from 'src/auth/user.entity';
+import { Comment } from 'src/comments/comment.entity';
 import { Profile } from 'src/profile/profile.entity';
 
 const dbConfig = config.get('db');
@@ -15,6 +16,6 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
   username: process.env.RDS_USERNAME || dbConfig.username,
   password: process.env.RDS_PASSWORD || dbConfig.password,
   database: process.env.RDS_DB_NAME || dbConfig.database,
-  entities: [User, Profile, Article, Tag, ArticleFavorited],
+  entities: [User, Profile, Article, Tag, ArticleFavorited, Comment],
   synchronize: process.env.TYPEORM_SYNC || dbConfig.synchronize,
 };

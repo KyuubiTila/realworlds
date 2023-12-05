@@ -123,7 +123,7 @@ export class ArticleService {
       const article = await this.getArticleById(articleId, user);
 
       if (!article) {
-        throw new Error('article not found');
+        throw new NotFoundException('article not found');
       }
 
       const isLiked = await this.articleFavoritedRepository.findOne({
@@ -165,7 +165,7 @@ export class ArticleService {
       const article = await this.getArticleById(articleId, user);
 
       if (!article) {
-        throw new Error('article not found');
+        throw new NotFoundException('article not found');
       }
 
       const isLiked = await this.articleFavoritedRepository.findOne({

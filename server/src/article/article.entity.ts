@@ -1,5 +1,6 @@
 import { ArticleFavorited } from 'src/article/article-favourited.entity';
-import { Profile } from 'src/profile/profile.entity';
+import { User } from 'src/auth/user.entity';
+import { Comment } from 'src/comments/comment.entity';
 import {
   BaseEntity,
   Column,
@@ -48,11 +49,14 @@ export class Article extends BaseEntity {
   @OneToMany(() => Tag, (tag) => tag.article)
   tags: Tag[];
 
-  @ManyToOne(() => Profile, (profile) => profile.articles)
-  user: Profile;
+  @ManyToOne(() => User, (user) => user.articles)
+  user: User;
 
   @OneToMany(() => ArticleFavorited, (favorited) => favorited.article)
   favoritedBy: ArticleFavorited[];
+
+  @OneToMany(() => Comment, (comment) => comment.article)
+  comments: Comment[];
 
   @Column()
   userId: number;
