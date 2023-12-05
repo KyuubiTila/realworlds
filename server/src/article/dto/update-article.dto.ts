@@ -4,6 +4,11 @@ export class UpdateArticleDto {
   @IsOptional()
   @IsNotEmpty({ message: 'Title should not be empty' })
   @IsString({ message: 'Title must be a string' })
+  slug: string;
+
+  @IsOptional()
+  @IsNotEmpty({ message: 'Title should not be empty' })
+  @IsString({ message: 'Title must be a string' })
   title: string;
 
   @IsOptional()
