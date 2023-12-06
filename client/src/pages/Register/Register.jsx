@@ -1,14 +1,13 @@
 import React from 'react';
-
-import axios from 'axios';
-
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
 import * as Yup from 'yup';
+import { useRegister } from '../../hooks/UsersHook';
 import { RegisterCard } from './RegisterCard';
 
 export const Register = () => {
+  const { addUser } = useRegister();
+
   const validationSchema = Yup.object().shape({
     username: Yup.string().required('You must input a username'),
     email: Yup.string().required('You must input an email'),
@@ -36,8 +35,7 @@ export const Register = () => {
 
   const register = async (data) => {
     try {
-      const user = await axios.post('http://localhost:3001/api/user', data);
-      console.log(user);
+      await addUser(data);
       registerSuccess();
     } catch (error) {
       console.error('Error registering user:', error);
@@ -66,3 +64,5 @@ export const Register = () => {
     </>
   );
 };
+
+export default Register;
