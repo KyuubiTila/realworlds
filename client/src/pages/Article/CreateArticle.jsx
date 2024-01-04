@@ -43,7 +43,7 @@ export const CreateArticle = () => {
   const createArticle = async (data) => {
     try {
       const createdArticle = await axios.post(
-        'http://localhost:3001/api/articles',
+        'http://localhost:3001/articles/create',
         data,
         {
           headers: {

@@ -2,21 +2,19 @@ import React from 'react';
 import { useState } from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import { useAuth } from '../../stores/auth';
+
 export const Header = () => {
-  const loggedIn = useAuth((state) => state.loggedIn);
-  const logOut = useAuth((state) => state.logOut);
-
-  const user = useAuth((state) => state.user);
-
   const [toggle, setToggle] = useState('hidden');
+
+  const { user, loggedIn, logOut } = useAuth();
+  console.log(user);
+  console.log(loggedIn);
 
   const changeToggle = () => {
     setToggle((toggle) => (toggle === 'hidden' ? '' : 'hidden'));
   };
 
   const logout = () => {
-    localStorage.removeItem('auth');
-    localStorage.removeItem('accessToken');
     logOut();
     changeToggle();
   };
