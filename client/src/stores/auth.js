@@ -45,6 +45,7 @@ export const useAuth = () => {
     data: user,
     isLoading,
     isError,
+    error,
     refetch,
   } = useQuery('userDetails', fetchUserDetails, {
     retry: 1,
@@ -52,6 +53,15 @@ export const useAuth = () => {
     enabled: false,
     initialData: initialUserDetails, // Use initialData to hydrate the initial state
   });
+
+  // Check for error and clear token if it indicates an invalid or expired token
+  if (isError) {
+    const errorStatus = error?.response?.status;
+    if (errorStatus === 401 || errorStatus === 403) {
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('userDetails');
+    }
+  }
 
   const loggedIn = !isLoading && !isError && user && user.id !== undefined;
 

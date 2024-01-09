@@ -1,134 +1,154 @@
+import { useQuery, useQueryClient, useMutation } from 'react-query';
 import axios from 'axios';
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import { updateFavouritedCount } from '../utils/update';
-export const useArticle = create(
-  persist(
-    (set) => ({
-      articles: [],
-      singleArticle: [],
-      username: '',
-      liked: false, // Track whether the user has liked the article
-      allLiked: [],
-      getArticles: async () => {
-        try {
-          const articles = await axios.get(
-            'http://localhost:3001/api/articles'
-          );
 
-          const { data } = articles;
+const getArticles = async (accessToken) => {
+  const articles = await axios.get('http://localhost:3001/articles', {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
 
-          set({ articles: data.data });
-        } catch (error) {
-          console.error('Error fetching articles:', error);
-        }
+  return articles.data;
+};
+
+const updateFavouritedCount = async (articleId, accessToken) => {
+  const response = await axios.put(
+    `http://localhost:3001/articles/updateArticleFavoritesCount/${articleId}`,
+    {},
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
       },
+    }
+  );
+  return response.data;
+};
 
-      getSingleArticle: async (articleId) => {
-        try {
-          const article = await axios.get(
-            `http://localhost:3001/api/articles/${articleId}`
-          );
-
-          const { data } = article;
-
-          set({ singleArticle: data.data });
-          set({ username: data.data.Profile.User.username });
-        } catch (error) {
-          console.error('Error fetching article:', error);
-        }
+const getSingleArticle = async (articleId, accessToken) => {
+  const article = await axios.get(
+    `http://localhost:3001/articles/${articleId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
       },
+    }
+  );
+  return article.data;
+};
 
-      // Function to toggle like status
-      toggleLike: async (articleId) => {
-        try {
-          const accessToken = localStorage.getItem('accessToken');
-          const like = await axios.get(
-            `http://localhost:3001/api/articles/like/${articleId}`,
-            {
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-              },
-            }
-          );
-
-          const { data } = like;
-
-          console.log(data);
-
-          // Toggle the 'liked' state when the like status changes
-          set((state) => ({ liked: !state.liked }));
-
-          // Update the 'allLiked' state directly
-          set((state) => ({
-            allLiked: state.allLiked.includes(articleId)
-              ? state.allLiked.filter((likedId) => likedId !== articleId)
-              : [...state.allLiked, articleId],
-          }));
-
-          await updateFavouritedCount(articleId);
-
-          // You can also update other relevant state based on the response.
-        } catch (error) {
-          console.error('Error fetching article:', error);
-        }
+const toggleLike = async (articleId, accessToken) => {
+  const like = await axios.post(
+    `http://localhost:3001/articles/${articleId}/toggle-like`,
+    {},
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
       },
+    }
+  );
 
-      // Function to toggle unlike status
-      toggleUnlike: async (articleId) => {
-        try {
-          const accessToken = localStorage.getItem('accessToken');
-          const unlike = await axios.get(
-            `http://localhost:3001/api/articles/unlike/${articleId}`,
-            {
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-              },
-            }
-          );
+  return like.data;
+};
 
-          const { data } = unlike;
-
-          console.log(data);
-
-          // Toggle the 'liked' state when the unlike status changes
-          set((state) => ({ liked: !state.liked }));
-
-          // Update the 'allLiked' state directly
-          set((state) => ({
-            allLiked: state.allLiked.includes(articleId)
-              ? state.allLiked.filter((likedId) => likedId !== articleId)
-              : [...state.allLiked, articleId],
-          }));
-
-          await updateFavouritedCount(articleId);
-
-          // You can also update other relevant state based on the response.
-        } catch (error) {
-          console.error('Error fetching article:', error);
-        }
+const toggleUnlike = async (articleId, accessToken) => {
+  const unlike = await axios.post(
+    `http://localhost:3001/articles/${articleId}/toggle-unlike`,
+    {},
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
       },
+    }
+  );
 
-      getAllLiked: async () => {
-        try {
-          const accessToken = localStorage.getItem('accessToken');
-          const allLiked = await axios.get(
-            'http://localhost:3001/api/articles/allLikes/getAll',
-            {
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-              },
-            }
-          );
+  return unlike.data;
+};
 
-          const { data } = allLiked;
-
-          set({ allLiked: data.data.map((item) => item.articleId) });
-        } catch (error) {
-          console.error('Error fetching all Liked:', error);
-        }
+const getAllLiked = async (accessToken) => {
+  const allLiked = await axios.get(
+    'http://localhost:3001/articles/allLikes/getAll',
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
       },
-    }),
-    { name: 'article' }
-  )
-);
+    }
+  );
+
+  return allLiked.data.map((item) => item.articleId);
+};
+
+export const useArticle = (articleId) => {
+  const queryClient = useQueryClient();
+
+  const accessToken = localStorage.getItem('accessToken');
+
+  const {
+    data: articles,
+    isLoading: articlesLoading,
+    error: articlesError,
+    refetch: refetchArticles,
+  } = useQuery(['articles', accessToken], () => getArticles(accessToken), {
+    enabled: !!accessToken,
+  });
+
+  const {
+    data: singleArticle,
+    isLoading: singleArticleLoading,
+    error: singleArticleError,
+    refetch: refetchSingleArticle,
+  } = useQuery(
+    ['singleArticle', articleId, accessToken],
+    () => getSingleArticle(articleId, accessToken),
+    {
+      enabled: false,
+    }
+  );
+
+  const likeMutation = useMutation(
+    (articleId) => toggleLike(articleId, accessToken),
+    {
+      onSuccess: async () => {
+        await updateFavouritedCount(articleId, accessToken);
+        queryClient.invalidateQueries('articles');
+        queryClient.invalidateQueries('allLiked');
+      },
+    }
+  );
+
+  const unlikeMutation = useMutation(
+    (articleId) => toggleUnlike(articleId, accessToken),
+    {
+      onSuccess: async () => {
+        await updateFavouritedCount(articleId, accessToken);
+        queryClient.invalidateQueries('articles');
+        queryClient.invalidateQueries('allLiked');
+      },
+    }
+  );
+
+  const {
+    data: allLiked,
+    isLoading: allLikedLoading,
+    error: allLikedError,
+    refetch: refetchAllLiked,
+  } = useQuery('allLiked', () => getAllLiked(accessToken), {
+    enabled: !!accessToken,
+  });
+
+  return {
+    articles,
+    articlesLoading,
+    articlesError,
+    refetchArticles,
+    singleArticle,
+    singleArticleLoading,
+    singleArticleError,
+    refetchSingleArticle,
+    likeMutation,
+    unlikeMutation,
+    allLiked,
+    allLikedLoading,
+    allLikedError,
+    refetchAllLiked,
+  };
+};

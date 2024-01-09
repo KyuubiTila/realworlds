@@ -1,21 +1,22 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useArticle } from '../../stores/articles';
+import { IndividualArticleCard } from './IndividualArticleCard';
 import { useParams } from 'react-router-dom';
 
-import { useEffect } from 'react';
-import { IndividualArticleCard } from './IndividualArticleCard';
-
 export const IndividualArticle = () => {
-  const getSingleArticle = useArticle((state) => state.getSingleArticle);
-  const singleArticle = useArticle((state) => state.singleArticle);
-  const username = useArticle((state) => state.username);
-
   const { id: articleId } = useParams();
+  const { singleArticle, refetchSingleArticle, allLiked } =
+    useArticle(articleId);
 
   useEffect(() => {
-    getSingleArticle(articleId);
-  }, [articleId, getSingleArticle]);
+    refetchSingleArticle(articleId);
+  }, [articleId, refetchSingleArticle]);
+
+  if (!singleArticle) {
+    return <p>Loading...</p>;
+  }
+
   return (
-    <IndividualArticleCard singleArticle={singleArticle} username={username} />
+    <IndividualArticleCard singleArticle={singleArticle} allLiked={allLiked} />
   );
 };

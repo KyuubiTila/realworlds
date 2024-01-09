@@ -49,10 +49,11 @@ export class ArticleService {
     }
   }
 
-  async getArticleById(id: number, user: User): Promise<Article> {
+  async getArticleById(id: number): Promise<Article> {
     try {
       const article = await this.articleRepository.findOne({
-        where: { id, userId: user.id },
+        where: { id },
+        relations: ['user'],
       });
 
       if (!article) {
@@ -67,7 +68,9 @@ export class ArticleService {
 
   async getAllArticles(): Promise<Article[]> {
     try {
-      const articles = await this.articleRepository.find();
+      const articles = await this.articleRepository.find({
+        relations: ['user'], // Add this to populate the user details
+      });
       return articles;
     } catch (error) {
       throw new InternalServerErrorException('Failed to fetch articles');
@@ -76,12 +79,11 @@ export class ArticleService {
 
   async updateArticle(
     id: number,
-    user: User,
     updateArticleDto: UpdateArticleDto,
   ): Promise<Article> {
     try {
       const { slug, title, description, body, taglist } = updateArticleDto;
-      const existingArticle = await this.getArticleById(id, user);
+      const existingArticle = await this.getArticleById(id);
 
       existingArticle.slug = slug;
       existingArticle.title = title;
@@ -120,7 +122,7 @@ export class ArticleService {
 
   async toggleLike(articleId: number, user: User): Promise<Article> {
     try {
-      const article = await this.getArticleById(articleId, user);
+      const article = await this.getArticleById(articleId);
 
       if (!article) {
         throw new NotFoundException('article not found');
@@ -162,7 +164,7 @@ export class ArticleService {
 
   async toggleUnlike(articleId: number, user: User): Promise<Article> {
     try {
-      const article = await this.getArticleById(articleId, user);
+      const article = await this.getArticleById(articleId);
 
       if (!article) {
         throw new NotFoundException('article not found');
@@ -193,6 +195,43 @@ export class ArticleService {
           'Error toggling unlike on article',
         );
       }
+    }
+  }
+
+  async updateArticleFavoritesCountService(
+    articleId: number,
+  ): Promise<{ success: boolean; message: string }> {
+    try {
+      const count = await this.articleFavoritedRepository.count({
+        where: { articleId },
+      });
+      await this.articleRepository.update(
+        { id: articleId },
+        { favouritesCount: count },
+      );
+
+      return {
+        success: true,
+        message: 'Article favorite count updated successfully',
+      };
+    } catch (error) {
+      console.error('Error updating article favorite count:', error);
+      throw new InternalServerErrorException(
+        'Error updating article favorite count',
+      );
+    }
+  }
+
+  async allLikesService(user: User): Promise<ArticleFavorited[]> {
+    try {
+      const userLikes = await this.articleFavoritedRepository.find({
+        where: { userId: user.id },
+      });
+
+      return userLikes;
+    } catch (error) {
+      console.error('Error fetching user likes:', error);
+      throw new InternalServerErrorException('Error fetching user likes');
     }
   }
 }

@@ -21,6 +21,7 @@ import { GetUser } from 'src/auth/get-user.decorator';
 import { User } from 'src/auth/user.entity';
 import { AuthGuard } from '@nestjs/passport';
 import { UpdateArticleDto } from './dto/update-article.dto';
+import { ArticleFavorited } from './article-favourited.entity';
 
 @Controller('articles')
 @UseGuards(AuthGuard())
@@ -47,10 +48,9 @@ export class ArticleController {
   @Get(':id')
   async getArticleById(
     @Param('id', ParseIntPipe) id: number,
-    @GetUser() user: User,
   ): Promise<Article> {
     try {
-      return await this.articleService.getArticleById(id, user);
+      return await this.articleService.getArticleById(id);
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw new NotFoundException(error.message);
@@ -71,15 +71,10 @@ export class ArticleController {
   @Put(':id')
   async updateArticle(
     @Param('id', ParseIntPipe) id: number,
-    @GetUser() user: User,
     @Body(ValidationPipe) updateArticleDto: UpdateArticleDto,
   ): Promise<Article> {
     try {
-      return await this.articleService.updateArticle(
-        id,
-        user,
-        updateArticleDto,
-      );
+      return await this.articleService.updateArticle(id, updateArticleDto);
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw new NotFoundException(error.message);
@@ -124,7 +119,7 @@ export class ArticleController {
     }
   }
 
-  @Delete(':id/toggle-unlike')
+  @Post(':id/toggle-unlike')
   async toggleUnlike(
     @Param('id', ParseIntPipe) articleId: number,
     @GetUser() user: User,
@@ -137,5 +132,30 @@ export class ArticleController {
       }
       throw new NotFoundException('Failed to toggle unlike');
     }
+  }
+
+  @Put('/updateArticleFavoritesCount/:articleId')
+  @UseGuards(AuthGuard())
+  async updateArticleFavoritesCount(
+    @Param('articleId') articleId: number,
+  ): Promise<{ success: boolean; message: string }> {
+    try {
+      // Call the updateArticleFavoritesCountService method
+      const result =
+        await this.articleService.updateArticleFavoritesCountService(articleId);
+
+      return result;
+    } catch (error) {
+      // Handle exceptions as needed
+      console.error('Error updating article favorites count:', error);
+      throw new InternalServerErrorException(
+        'Error updating article favorites count',
+      );
+    }
+  }
+
+  @Get('allLikes/getAll')
+  async getAllLikes(@GetUser() user: User): Promise<ArticleFavorited[]> {
+    return this.articleService.allLikesService(user);
   }
 }

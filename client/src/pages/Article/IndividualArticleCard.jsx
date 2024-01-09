@@ -1,102 +1,78 @@
-import React, { useState, useEffect } from 'react';
-import { timeAgo } from '../../utils/Timeago';
-import { useAuth } from '../../stores/auth';
+import dateAndTime from 'date-and-time';
+import { useState } from 'react';
 import { useArticle } from '../../stores/articles';
-import { useComment } from '../../stores/comments';
-import CreateCommentCard from '../Comment/CreateCommentCard';
-import * as Yup from 'yup';
-import axios from 'axios';
-import { CommentCard } from '../Comment/displayCommentsCard';
+import { useAuth } from '../../stores/auth';
+import { useParams } from 'react-router-dom';
 
-export const IndividualArticleCard = ({ singleArticle, username }) => {
-  const loggedIn = useAuth((state) => state.loggedIn);
-  const toggleLike = useArticle((state) => state.toggleLike);
-  const toggleUnlike = useArticle((state) => state.toggleUnlike);
-  const getAllLiked = useArticle((state) => state.getAllLiked);
-  const allLiked = useArticle((state) => state.allLiked);
-  const articleComments = useComment((state) => state.articleComments);
-  const comments = useComment((state) => state.comments);
-  const addComment = useComment((state) => state.addComment);
-  const commentDelete = useComment((state) => state.commentDelete);
-  const [liked, setLiked] = useState(allLiked.includes(singleArticle.id));
+// import * as Yup from 'yup';
 
-  const { id, body, title, favoritesCount, description, updatedAt } =
+export const IndividualArticleCard = ({ singleArticle, allLiked }) => {
+  const { id: articleId } = useParams();
+  const { loggedIn } = useAuth();
+  const { likeMutation, unlikeMutation, refetchAllLiked } =
+    useArticle(articleId);
+
+  const { body, title, favouritesCount, description, updatedAt, user } =
     singleArticle;
 
-  const timeAgoString = timeAgo(new Date(updatedAt));
+  const [liked, setLiked] = useState(allLiked.includes(singleArticle.id));
 
-  const initialValues = {
-    comment: '',
-  };
-  const validationSchema = Yup.object().shape({
-    comment: Yup.string().required('you must send a comment'),
-  });
+  const now = new Date(updatedAt);
+  const formattedDate = dateAndTime.format(now, 'HH:mm DD/MM/YYYY');
 
-  const addCommentHandler = async (data) => {
-    const accessToken = localStorage.getItem('accessToken');
+  // const initialValues = {
+  //   comment: '',
+  // };
+  // const validationSchema = Yup.object().shape({
+  //   comment: Yup.string().required('you must send a comment'),
+  // });
 
+  // const addCommentHandler = async (data) => {
+  //   const accessToken = localStorage.getItem('accessToken');
+
+  //   try {
+  //     const response = await axios.post(
+  //       `http://localhost:3001/api/comments/${id}`,
+  //       data,
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${accessToken}`,
+  //         },
+  //       }
+  //     );
+
+  //     if (response && response.data) {
+  //       const newComment = response.data.data;
+
+  //       console.log(newComment);
+  //       addComment(newComment);
+  //     } else {
+  //       alert(
+  //         'Failed to create a comment. The response does not contain valid data.'
+  //       );
+  //     }
+  //   } catch (error) {
+  //     alert(`Error creating a comment: ${error.message}`);
+  //   }
+  // };
+
+  const handleLikeClick = async (articleId) => {
     try {
-      const response = await axios.post(
-        `http://localhost:3001/api/comments/${id}`,
-        data,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
-
-      if (response && response.data) {
-        const newComment = response.data.data;
-
-        console.log(newComment);
-        addComment(newComment);
-      } else {
-        alert(
-          'Failed to create a comment. The response does not contain valid data.'
-        );
-      }
-    } catch (error) {
-      alert(`Error creating a comment: ${error.message}`);
-    }
-  };
-
-  const handleLikeClick = async (id) => {
-    const articleId = id;
-    try {
-      let updatedFavoritesCount = favoritesCount;
-      // Send a request to your server to toggle the like status
       if (liked) {
-        // User has already liked, send an unlike request
-        await toggleUnlike(articleId);
-        updatedFavoritesCount--;
+        await unlikeMutation.mutate(articleId);
+        refetchAllLiked();
       } else {
-        // User has not liked, send a like request
-        await toggleLike(articleId);
-        updatedFavoritesCount++;
+        await likeMutation.mutate(articleId);
       }
 
-      // Toggle the 'liked' state based on the server response
       setLiked(!liked);
-      // Update the article object with the new favoritesCount
-      singleArticle.favoritesCount = updatedFavoritesCount;
+      singleArticle.favouritesCount = liked
+        ? singleArticle.favouritesCount - 1
+        : singleArticle.favouritesCount + 1;
     } catch (error) {
       console.error('Error toggling like:', error);
     }
   };
-
-  useEffect(() => {
-    loggedIn && getAllLiked();
-  }, [getAllLiked, loggedIn]);
-
-  useEffect(() => {
-    // Update 'liked' state when 'allLiked' prop changes
-    setLiked(allLiked.includes(singleArticle.id));
-  }, [allLiked, singleArticle.id]);
-
-  useEffect(() => {
-    articleComments(id);
-  }, [articleComments, id]);
 
   return (
     <div className="bg-slate-400 text-white rounded-lg mt-4 space-y-6 p-10 w-full">
@@ -111,7 +87,7 @@ export const IndividualArticleCard = ({ singleArticle, username }) => {
         </div>
         <div className="space-y-2">
           <div className="flex space-x-2 items-center">
-            <h2 className="text-base"> {username} </h2>
+            <h2 className="text-base"> {user.username} </h2>
             <svg
               className="h-4 w-4 text-blue-500"
               fill="none"
@@ -125,9 +101,9 @@ export const IndividualArticleCard = ({ singleArticle, username }) => {
                 d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
               />
             </svg>
-            <div className="  text-xs text-slate-400">posted an update</div>
+            <div className="  text-xs">posted an update</div>
           </div>
-          <p className=" text-xs text-slate-400">{timeAgoString}</p>
+          <p className="text-xs ">{formattedDate}</p>
         </div>
       </div>
       <div>
@@ -137,12 +113,12 @@ export const IndividualArticleCard = ({ singleArticle, username }) => {
         <p className="text-base">{description}</p>
       </div>
       <div>
-        <p className="text-sm leading-6 text-slate-300">{body}</p>
+        <p className="text-sm leading-6">{body}</p>
       </div>
       <div className="flex justify-between pt-5">
         {loggedIn ? (
           <div className="flex items-center">
-            <button onClick={() => handleLikeClick(id)}>
+            <button onClick={() => handleLikeClick(articleId)}>
               {liked ? (
                 <svg
                   className="h-4 w-4 text-red-500"
@@ -173,16 +149,16 @@ export const IndividualArticleCard = ({ singleArticle, username }) => {
                 </svg>
               )}
             </button>
-            <span className="ml-1 text-base">Likes : {favoritesCount}</span>
+            <span className="ml-1 text-base">Likes : {favouritesCount}</span>
           </div>
         ) : (
-          <span className="ml-1 text-base">Likes : {favoritesCount}</span>
+          <span className="ml-1 text-base">Likes : {favouritesCount}</span>
         )}
         <div className="text-base">
-          <p>{comments.length} Comments</p>
+          {/* <p>{comments.length} Comments</p> */}
         </div>
       </div>
-      {comments.map((comment) => {
+      {/* {comments.map((comment) => {
         return (
           <CommentCard
             key={comment.id}
@@ -190,14 +166,14 @@ export const IndividualArticleCard = ({ singleArticle, username }) => {
             commentDelete={commentDelete}
           />
         );
-      })}
-      {loggedIn && (
+      })} */}
+      {/* {loggedIn && (
         <CreateCommentCard
           addCommentHandler={addCommentHandler}
           initialValues={initialValues}
           validationSchema={validationSchema}
         />
-      )}
+      )} */}
     </div>
   );
 };

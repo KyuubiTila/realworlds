@@ -1,68 +1,60 @@
-import React, { useState, useEffect } from 'react';
-import { timeAgo } from '../../utils/Timeago';
 import { useAuth } from '../../stores/auth';
 import { Link } from 'react-router-dom';
+import dateAndTime from 'date-and-time';
+import { useState, useEffect } from 'react';
+
 import { useArticle } from '../../stores/articles';
-import { useComment } from '../../stores/comments';
 
 export const ArticleDisplayCard = ({ article }) => {
-  const loggedIn = useAuth((state) => state.loggedIn);
-  const toggleLike = useArticle((state) => state.toggleLike);
-  const toggleUnlike = useArticle((state) => state.toggleUnlike);
-  const getAllLiked = useArticle((state) => state.getAllLiked);
-  const allLiked = useArticle((state) => state.allLiked);
-  const allComments = useComment((state) => state.allComments);
-  const comments = useComment((state) => state.comments);
-
-  const personalCommentsId = comments.map((comment) => {
-    return comment.articleId;
-  });
+  const {
+    id: articleId,
+    body,
+    title,
+    favouritesCount,
+    description,
+    createdAt,
+    user,
+  } = article;
+  const { loggedIn } = useAuth();
+  const {
+    allLiked,
+    likeMutation,
+    unlikeMutation,
+    refetchAllLiked,
+    articlesLoading,
+  } = useArticle(articleId);
 
   const [liked, setLiked] = useState(allLiked.includes(article.id));
 
-  const { id, body, title, favoritesCount, description, createdAt } = article;
+  useEffect(() => {
+    refetchAllLiked();
+  }, [refetchAllLiked]);
 
-  const commentsLength = personalCommentsId.filter(
-    (commentId) => commentId === id
-  ).length;
-
-  const { username } = article.Profile.User;
-
-  const timeAgoString = timeAgo(new Date(createdAt));
-
-  const handleLikeClick = async (id) => {
-    const articleId = id;
+  const handleLikeClick = async (articleId) => {
     try {
-      let updatedFavoritesCount = favoritesCount;
-      // Send a request to your server to toggle the like status
       if (liked) {
-        // User has already liked, send an unlike request
-        await toggleUnlike(articleId);
-        updatedFavoritesCount--;
+        await unlikeMutation.mutate(articleId);
+        refetchAllLiked();
       } else {
-        // User has not liked, send a like request
-        await toggleLike(articleId);
-        updatedFavoritesCount++;
+        await likeMutation.mutate(articleId);
+        refetchAllLiked();
       }
 
-      // Toggle the 'liked' state based on the server response
       setLiked(!liked);
-      // Update the article object with the new favoritesCount
-      article.favoritesCount = updatedFavoritesCount;
+      article.favouritesCount = liked
+        ? article.favouritesCount - 1
+        : article.favouritesCount + 1;
     } catch (error) {
       console.error('Error toggling like:', error);
     }
   };
 
-  useEffect(() => {
-    loggedIn && getAllLiked();
-  }, [getAllLiked, loggedIn]);
+  const now = new Date(createdAt);
+  const formattedDate = dateAndTime.format(now, 'HH:mm DD/MM/YYYY');
 
-  useEffect(() => {
-    allComments();
-  }, [allComments, id]);
-
-  return (
+  return articlesLoading ? (
+    ' loading '
+  ) : (
     <div className="bg-slate-800 text-white rounded-lg mt-4 space-y-6 p-10 w-full">
       <div className="flex space-x-4 items-center">
         <div className="w-12 h-12">
@@ -74,7 +66,7 @@ export const ArticleDisplayCard = ({ article }) => {
         </div>
         <div className="space-y-2">
           <div className="flex space-x-2 items-center">
-            <h2 className="text-base"> {username} </h2>
+            <h2 className="text-base">{user.username} </h2>
             <svg
               className="h-4 w-4 text-blue-500"
               fill="none"
@@ -90,12 +82,12 @@ export const ArticleDisplayCard = ({ article }) => {
             </svg>
             <div className="text-xs text-slate-400">posted an update</div>
           </div>
-          <p className="text-xs text-slate-400">{timeAgoString}</p>
+          <p className="text-xs text-slate-400">{formattedDate}</p>
         </div>
       </div>
 
       <div className="flex space-x-4 items-center">
-        <Link to={`/article/${id}`}>
+        <Link to={`/article/${articleId}`}>
           <div>
             <p className="text-base">{title}</p>
           </div>
@@ -115,7 +107,7 @@ export const ArticleDisplayCard = ({ article }) => {
       <div className="flex justify-between">
         {loggedIn ? (
           <div className="flex items-center">
-            <button onClick={() => handleLikeClick(id)}>
+            <button onClick={() => handleLikeClick(articleId)}>
               {liked ? (
                 <svg
                   className="h-4 w-4 text-red-500"
@@ -147,17 +139,20 @@ export const ArticleDisplayCard = ({ article }) => {
               )}
             </button>
             <span className="ml-1 text-slate-400 text-sm">
-              Likes : {favoritesCount}
+              Likes : {favouritesCount}
             </span>
           </div>
         ) : (
           <span className="ml-1 text-slate-400 text-sm">
-            Likes : {favoritesCount}
+            Likes : {favouritesCount}
           </span>
         )}
 
         <div className="text-slate-400 text-sm">
-          <p>{commentsLength} Comments</p>
+          <p>
+            {/* {commentsLength} */}
+            Comments
+          </p>
         </div>
       </div>
     </div>
