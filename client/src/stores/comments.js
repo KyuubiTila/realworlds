@@ -1,58 +1,126 @@
 import axios from 'axios';
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { useQuery, useQueryClient, useMutation } from 'react-query';
 
-export const useComment = create(
-  persist(
-    (set) => ({
-      comments: [],
-      articleComments: async (id) => {
-        try {
-          const comments = await axios.get(
-            `http://localhost:3001/api/comments/${id}`
-          );
+const getArticleComments = async (articleId, accessToken) => {
+  try {
+    const response = await axios.get(
+      `http://localhost:3001/comments/article/${articleId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to fetch article comments');
+  }
+};
 
-          set({ comments: comments.data.data });
-        } catch (error) {
-          console.error('Error logging in:', error);
-        }
+const getAllComments = async (accessToken) => {
+  try {
+    const response = await axios.get('http://localhost:3001/comments', {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
       },
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to fetch all comments');
+  }
+};
 
-      allComments: async () => {
-        try {
-          const allComments = await axios.get(
-            'http://localhost:3001/api/comments'
-          );
-          set({ comments: allComments.data });
-        } catch (error) {
-          console.error('Error logging in:', error);
-        }
+const addComment = async (newComment, existingComments) => {
+  // Ensure existingComments is treated as an array
+  const commentsArray = Array.isArray(existingComments) ? existingComments : [];
+
+  // Assuming you only need to add the new comment to the existing list
+  return [...commentsArray, newComment];
+};
+
+const deleteComment = async (id) => {
+  try {
+    const accessToken = localStorage.getItem('accessToken');
+    await axios.delete(`http://localhost:3001/comments/${id}`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
       },
+    });
+    return id; // Return the ID of the deleted comment
+  } catch (error) {
+    throw new Error('Failed to delete comment');
+  }
+};
 
-      addComment: (newComment) => {
-        set((state) => ({
-          comments: [...state.comments, newComment],
-        }));
-      },
+export const useComment = (articleId) => {
+  const queryClient = useQueryClient();
+  const accessToken = localStorage.getItem('accessToken');
 
-      commentDelete: async (id) => {
-        const accessToken = localStorage.getItem('accessToken');
+  const {
+    data: articleComments,
+    isLoading: commentsIsLoading,
+    error,
+    refetch: refetchComments,
+  } = useQuery(
+    'articleComments',
+    () => getArticleComments(articleId, accessToken),
+    {
+      enabled: false,
+    }
+  );
 
-        try {
-          await axios.delete(`http://localhost:3001/api/comments/${id}`, {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          });
+  const {
+    data: allComments,
+    isLoading: allCommentsLoading,
+    error: allCommentsError,
+    refetch: refetchAllComments,
+  } = useQuery('allComments', () => getAllComments(accessToken), {
+    enabled: false,
+  });
 
-          set((state) => ({
-            comments: state.comments.filter((element) => element.id !== id),
-          }));
-        } catch (error) {
-          alert(`${error.response.data.error}; you can not delete comment`);
-        }
-      },
-    }),
-    { name: 'comments' }
-  )
-);
+  const addCommentMutation = useMutation(addComment, {
+    onSuccess: (newComment) => {
+      queryClient.setQueryData('allComments', (prevData) => {
+        // Ensure prevData is treated as an array
+        const commentsArray = Array.isArray(prevData) ? prevData : [];
+
+        // Spread commentsArray with the new comment
+        return [...commentsArray, newComment];
+      });
+      refetchComments();
+    },
+    onError: (error) => {
+      console.error('Error adding comment:', error);
+    },
+  });
+
+  const deleteCommentMutation = useMutation(deleteComment, {
+    onSuccess: (deletedCommentId) => {
+      queryClient.setQueryData('allComments', (prevData) => {
+        // Ensure prevData is treated as an array
+        const commentsArray = Array.isArray(prevData) ? prevData : [];
+
+        return commentsArray.filter(
+          (comment) => comment.id !== deletedCommentId
+        );
+      });
+      refetchComments();
+    },
+    onError: (error) => {
+      console.error('Error deleting comment:', error);
+    },
+  });
+
+  return {
+    articleComments,
+    refetchComments,
+    commentsIsLoading,
+    error,
+    allComments,
+    allCommentsLoading,
+    allCommentsError,
+    addCommentMutation,
+    deleteCommentMutation,
+    refetchAllComments,
+  };
+};

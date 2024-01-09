@@ -93,4 +93,25 @@ export class CommentService {
       }
     }
   }
+
+  async getArticleCommentsById(articleId: number): Promise<Comment[]> {
+    try {
+      const comments = await this.commentRepository.find({
+        where: { articleId },
+        relations: ['user'],
+      });
+
+      if (!comments || comments.length === 0) {
+        throw new NotFoundException(
+          'No comments found for the specified article',
+        );
+      }
+
+      return comments;
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Failed to fetch article comments',
+      );
+    }
+  }
 }

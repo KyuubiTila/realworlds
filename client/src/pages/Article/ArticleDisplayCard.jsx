@@ -4,6 +4,7 @@ import dateAndTime from 'date-and-time';
 import { useState, useEffect } from 'react';
 
 import { useArticle } from '../../stores/articles';
+import { useComment } from '../../stores/comments';
 
 export const ArticleDisplayCard = ({ article }) => {
   const {
@@ -24,11 +25,27 @@ export const ArticleDisplayCard = ({ article }) => {
     articlesLoading,
   } = useArticle(articleId);
 
-  const [liked, setLiked] = useState(allLiked.includes(article.id));
+  const { allComments, refetchAllComments } = useComment(articleId);
+
+  const [liked, setLiked] = useState(allLiked?.includes(article.id));
 
   useEffect(() => {
     refetchAllLiked();
   }, [refetchAllLiked]);
+
+  useEffect(() => {
+    refetchAllComments();
+  }, [refetchAllComments]);
+
+  console.log(allComments);
+
+  const personalCommentsId = allComments?.map((comment) => {
+    return comment.articleId;
+  });
+
+  const commentsLength = personalCommentsId?.filter(
+    (commentId) => commentId === articleId
+  ).length;
 
   const handleLikeClick = async (articleId) => {
     try {
@@ -149,10 +166,7 @@ export const ArticleDisplayCard = ({ article }) => {
         )}
 
         <div className="text-slate-400 text-sm">
-          <p>
-            {/* {commentsLength} */}
-            Comments
-          </p>
+          <p>{commentsLength} Comments</p>
         </div>
       </div>
     </div>

@@ -89,4 +89,14 @@ export class CommentController {
       }
     }
   }
+
+  @Get('article/:id')
+  async getArticleCommentsById(@Param('id') articleId: number) {
+    try {
+      return await this.commentService.getArticleCommentsById(articleId);
+    } catch (error) {
+      // Handle errors, for simplicity, just returning an error response
+      return { error: error.message };
+    }
+  }
 }
