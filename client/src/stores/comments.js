@@ -52,6 +52,24 @@ const deleteComment = async (id) => {
   }
 };
 
+const editComment = async ({ id, body }) => {
+  try {
+    const accessToken = localStorage.getItem('accessToken');
+    const response = await axios.put(
+      `http://localhost:3001/comments/${id}`,
+      { body },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to edit comment');
+  }
+};
+
 export const useComment = (articleId) => {
   const queryClient = useQueryClient();
   const accessToken = localStorage.getItem('accessToken');
@@ -111,6 +129,23 @@ export const useComment = (articleId) => {
     },
   });
 
+  const updateCommentMutation = useMutation(editComment, {
+    onSuccess: (editedComment) => {
+      queryClient.setQueryData('allComments', (prevData) => {
+        // Ensure prevData is treated as an array
+        const commentsArray = Array.isArray(prevData) ? prevData : [];
+
+        return commentsArray.map((comment) =>
+          comment.id === editedComment.id ? editedComment : comment
+        );
+      });
+      refetchComments();
+    },
+    onError: (error) => {
+      console.error('Error editing comment:', error);
+    },
+  });
+
   return {
     articleComments,
     refetchComments,
@@ -121,6 +156,7 @@ export const useComment = (articleId) => {
     allCommentsError,
     addCommentMutation,
     deleteCommentMutation,
+    updateCommentMutation,
     refetchAllComments,
   };
 };

@@ -21,6 +21,7 @@ export const IndividualArticleCard = ({ singleArticle, allLiked }) => {
     refetchComments,
     commentsIsLoading,
     deleteCommentMutation,
+    updateCommentMutation,
   } = useComment(articleId);
   console.log(articleComments);
 
@@ -189,6 +190,7 @@ export const IndividualArticleCard = ({ singleArticle, allLiked }) => {
             key={comment.id}
             comment={comment}
             deleteCommentMutation={deleteCommentMutation}
+            updateCommentMutation={updateCommentMutation}
           />
         ))
       ) : (
