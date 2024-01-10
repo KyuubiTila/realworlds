@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import dateAndTime from 'date-and-time';
+import React, { useState, useEffect } from 'react';
+import { formatDistanceToNow } from 'date-fns';
+
 import { useAuth } from '../../stores/auth';
 
 export const CommentCard = ({
@@ -14,8 +15,14 @@ export const CommentCard = ({
 
   const { id, user: commentUser, updatedAt } = comment;
 
-  const now = new Date(updatedAt);
-  const formattedDate = dateAndTime.format(now, 'HH:mm DD/MM/YYYY');
+  const [relativeTime, setRelativeTime] = useState('');
+
+  useEffect(() => {
+    // Calculate relative time using date-fns
+    const articleDate = new Date(updatedAt);
+    const relativeTimeString = formatDistanceToNow(articleDate);
+    setRelativeTime(relativeTimeString);
+  }, [updatedAt]);
 
   const handleEditClick = () => {
     setIsEditing(!isEditing);
@@ -40,7 +47,7 @@ export const CommentCard = ({
         <div id="defaultTabContent">
           <p className="mb-1 text-xs text-white">
             comment created by @{commentUser.username.toUpperCase()} at{' '}
-            {formattedDate}
+            {relativeTime}
           </p>
           {isEditing ? (
             <textarea

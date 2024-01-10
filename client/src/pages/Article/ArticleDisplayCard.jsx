@@ -1,6 +1,7 @@
 import { useAuth } from '../../stores/auth';
 import { Link } from 'react-router-dom';
-import dateAndTime from 'date-and-time';
+import { formatDistanceToNow } from 'date-fns';
+
 import { useState, useEffect } from 'react';
 
 import { useArticle } from '../../stores/articles';
@@ -28,6 +29,7 @@ export const ArticleDisplayCard = ({ article }) => {
   const { allComments, refetchAllComments } = useComment(articleId);
 
   const [liked, setLiked] = useState(allLiked?.includes(article.id));
+  const [relativeTime, setRelativeTime] = useState('');
 
   useEffect(() => {
     refetchAllLiked();
@@ -66,8 +68,12 @@ export const ArticleDisplayCard = ({ article }) => {
     }
   };
 
-  const now = new Date(createdAt);
-  const formattedDate = dateAndTime.format(now, 'HH:mm DD/MM/YYYY');
+  useEffect(() => {
+    // Calculate relative time using date-fns
+    const articleDate = new Date(createdAt);
+    const relativeTimeString = formatDistanceToNow(articleDate);
+    setRelativeTime(relativeTimeString);
+  }, [createdAt]);
 
   return articlesLoading ? (
     ' loading '
@@ -99,7 +105,7 @@ export const ArticleDisplayCard = ({ article }) => {
             </svg>
             <div className="text-xs text-slate-400">posted an update</div>
           </div>
-          <p className="text-xs text-slate-400">{formattedDate}</p>
+          <p className="text-xs text-slate-400">{relativeTime}</p>
         </div>
       </div>
 

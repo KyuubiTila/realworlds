@@ -1,4 +1,4 @@
-import dateAndTime from 'date-and-time';
+import { formatDistanceToNow } from 'date-fns';
 import { useEffect, useState } from 'react';
 import { useArticle } from '../../stores/articles';
 import { useComment } from '../../stores/comments';
@@ -33,9 +33,14 @@ export const IndividualArticleCard = ({ singleArticle, allLiked }) => {
     singleArticle;
 
   const [liked, setLiked] = useState(allLiked.includes(singleArticle.id));
+  const [relativeTime, setRelativeTime] = useState('');
 
-  const now = new Date(updatedAt);
-  const formattedDate = dateAndTime.format(now, 'HH:mm DD/MM/YYYY');
+  useEffect(() => {
+    // Calculate relative time using date-fns
+    const articleDate = new Date(updatedAt);
+    const relativeTimeString = formatDistanceToNow(articleDate);
+    setRelativeTime(relativeTimeString);
+  }, [updatedAt]);
 
   const initialValues = {
     body: '',
@@ -119,7 +124,7 @@ export const IndividualArticleCard = ({ singleArticle, allLiked }) => {
             </svg>
             <div className="  text-xs">posted an update</div>
           </div>
-          <p className="text-xs ">{formattedDate}</p>
+          <p className="text-xs ">{relativeTime}</p>
         </div>
       </div>
       <div>
@@ -172,11 +177,9 @@ export const IndividualArticleCard = ({ singleArticle, allLiked }) => {
         )}
         <div className="text-base">
           <p>
-            {commentsIsLoading ? (
-              <p>Loading comments...</p>
-            ) : (
-              articleComments?.length
-            )}{' '}
+            {commentsIsLoading
+              ? 'Loading comments...'
+              : articleComments?.length}{' '}
             Comments
           </p>
         </div>
