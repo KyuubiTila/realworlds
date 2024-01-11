@@ -9,19 +9,19 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
-import { AuthCredentialDto } from './dto/auth-credential.dto';
+import { RegisterCredentialDto } from './dto/register-credential.dto';
 import { UserUpdateDto } from './dto/user-update.dto';
 import { LoginCredentialDto } from './dto/login-credential.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { GetUser } from './get-user.decorator';
+import { GetAuthenticatedUser } from './get-authenticated-user.decorator';
 import { User } from './user.entity';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
   @Post('/signUp')
-  signUp(@Body() authCredentialDto: AuthCredentialDto) {
-    return this.authService.signUpService(authCredentialDto);
+  signUp(@Body() registerCredentialDto: RegisterCredentialDto) {
+    return this.authService.signUpService(registerCredentialDto);
   }
 
   @Get('/:id')
@@ -56,7 +56,7 @@ export class AuthController {
 
   @Post('/profile')
   @UseGuards(AuthGuard())
-  async getProfile(@GetUser() user: User) {
+  async getProfile(@GetAuthenticatedUser() user: User) {
     return { user };
   }
 }

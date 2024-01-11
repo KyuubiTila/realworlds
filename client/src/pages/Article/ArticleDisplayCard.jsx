@@ -39,7 +39,7 @@ export const ArticleDisplayCard = ({ article }) => {
     refetchAllComments();
   }, [refetchAllComments]);
 
-  console.log(allComments);
+  // console.log(allComments);
 
   const personalCommentsId = allComments?.map((comment) => {
     return comment.articleId;

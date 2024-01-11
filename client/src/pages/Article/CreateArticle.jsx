@@ -43,7 +43,7 @@ export const CreateArticle = () => {
   const createArticle = async (data) => {
     try {
       const createdArticle = await axios.post(
-        'http://localhost:3001/articles/create',
+        'http://localhost:3001/articles',
         data,
         {
           headers: {
@@ -51,7 +51,7 @@ export const CreateArticle = () => {
           },
         }
       );
-      console.log(createdArticle);
+      // console.log(createdArticle);
       articleSuccess();
     } catch (error) {
       console.error('Error creating article:', error);

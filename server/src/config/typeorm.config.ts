@@ -1,8 +1,8 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import * as config from 'config';
-import { ArticleFavorited } from 'src/article/article-favourited.entity';
+import { ArticleFavorited } from 'src/article_favorited/article-favourited.entity';
 import { Article } from 'src/article/article.entity';
-import { Tag } from 'src/article/tag.entity';
+import { Tag } from 'src/tag/tag.entity';
 import { User } from 'src/auth/user.entity';
 import { Comment } from 'src/comments/comment.entity';
 import { Profile } from 'src/profile/profile.entity';

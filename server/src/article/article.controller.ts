@@ -10,38 +10,37 @@ import {
   NotFoundException,
   Put,
   InternalServerErrorException,
-  ConflictException,
   Delete,
-  ForbiddenException,
+  Patch,
+  ConflictException,
 } from '@nestjs/common';
 import { ArticleService } from './article.service';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { Article } from './article.entity';
-import { GetUser } from 'src/auth/get-user.decorator';
+import { GetAuthenticatedUser } from 'src/auth/get-authenticated-user.decorator';
 import { User } from 'src/auth/user.entity';
 import { AuthGuard } from '@nestjs/passport';
 import { UpdateArticleDto } from './dto/update-article.dto';
-import { ArticleFavorited } from './article-favourited.entity';
+import { ArticleFavorited } from '../article_favorited/article-favourited.entity';
 
 @Controller('articles')
 @UseGuards(AuthGuard())
 export class ArticleController {
   constructor(private readonly articleService: ArticleService) {}
 
-  @Post('create')
+  @Post()
   async createArticle(
+    @GetAuthenticatedUser() user: User,
     @Body(ValidationPipe) createArticleDto: CreateArticleDto,
-    @GetUser() user: User,
   ): Promise<Article> {
     try {
       return await this.articleService.createArticle(user, createArticleDto);
     } catch (error) {
-      if (error instanceof ConflictException) {
-        throw new ConflictException(error.message);
-      } else if (error instanceof InternalServerErrorException) {
-        throw new InternalServerErrorException(error.message);
+      if (error.code === 'ER_DUP_ENTRY') {
+        throw new ConflictException('Article with this slug already exists');
+      } else {
+        throw new InternalServerErrorException('Failed to create article');
       }
-      throw new InternalServerErrorException('Failed to create article');
     }
   }
 
@@ -52,9 +51,6 @@ export class ArticleController {
     try {
       return await this.articleService.getArticleById(id);
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw new NotFoundException(error.message);
-      }
       throw new NotFoundException('Failed to fetch article');
     }
   }
@@ -68,7 +64,7 @@ export class ArticleController {
     }
   }
 
-  @Put(':id')
+  @Patch(':id')
   async updateArticle(
     @Param('id', ParseIntPipe) id: number,
     @Body(ValidationPipe) updateArticleDto: UpdateArticleDto,
@@ -76,45 +72,30 @@ export class ArticleController {
     try {
       return await this.articleService.updateArticle(id, updateArticleDto);
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw new NotFoundException(error.message);
-      }
       throw new InternalServerErrorException('Failed to update article');
     }
   }
 
   @Delete(':id')
   async deleteArticle(
+    @GetAuthenticatedUser() user: User,
     @Param('id', ParseIntPipe) id: number,
-    @GetUser() user: User,
   ): Promise<void> {
     try {
       await this.articleService.deleteArticle(id, user);
     } catch (error) {
-      if (
-        error instanceof NotFoundException ||
-        error instanceof ForbiddenException
-      ) {
-        throw new NotFoundException(error.message);
-      }
       throw new NotFoundException('Failed to delete article');
     }
   }
 
   @Post(':id/toggle-like')
   async toggleLike(
+    @GetAuthenticatedUser() user: User,
     @Param('id', ParseIntPipe) articleId: number,
-    @GetUser() user: User,
   ) {
     try {
       return await this.articleService.toggleLike(articleId, user);
     } catch (error) {
-      if (
-        error instanceof NotFoundException ||
-        error instanceof ConflictException
-      ) {
-        throw new NotFoundException(error.message);
-      }
       throw new NotFoundException('Failed to toggle like');
     }
   }
@@ -122,25 +103,20 @@ export class ArticleController {
   @Post(':id/toggle-unlike')
   async toggleUnlike(
     @Param('id', ParseIntPipe) articleId: number,
-    @GetUser() user: User,
+    @GetAuthenticatedUser() user: User,
   ) {
     try {
       return await this.articleService.toggleUnlike(articleId, user);
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw new NotFoundException(error.message);
-      }
       throw new NotFoundException('Failed to toggle unlike');
     }
   }
 
   @Put('/updateArticleFavoritesCount/:articleId')
-  @UseGuards(AuthGuard())
   async updateArticleFavoritesCount(
     @Param('articleId') articleId: number,
   ): Promise<{ success: boolean; message: string }> {
     try {
-      // Call the updateArticleFavoritesCountService method
       const result =
         await this.articleService.updateArticleFavoritesCountService(articleId);
 
@@ -155,7 +131,9 @@ export class ArticleController {
   }
 
   @Get('allLikes/getAll')
-  async getAllLikes(@GetUser() user: User): Promise<ArticleFavorited[]> {
+  async getAllLikes(
+    @GetAuthenticatedUser() user: User,
+  ): Promise<ArticleFavorited[]> {
     return this.articleService.allLikesService(user);
   }
 }

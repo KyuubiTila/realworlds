@@ -55,7 +55,7 @@ const deleteComment = async (id) => {
 const editComment = async ({ id, body }) => {
   try {
     const accessToken = localStorage.getItem('accessToken');
-    const response = await axios.put(
+    const response = await axios.patch(
       `http://localhost:3001/comments/${id}`,
       { body },
       {

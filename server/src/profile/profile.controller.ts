@@ -11,7 +11,7 @@ import {
   Get,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { GetUser } from 'src/auth/get-user.decorator';
+import { GetAuthenticatedUser } from 'src/auth/get-authenticated-user.decorator';
 import { User } from 'src/auth/user.entity';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
@@ -26,7 +26,7 @@ export class ProfileController {
   @Post('create')
   async createProfile(
     @Body() createProfileDto: CreateProfileDto,
-    @GetUser() user: User,
+    @GetAuthenticatedUser() user: User,
   ): Promise<Profile> {
     try {
       const createdProfile = await this.profileService.createProfile(
@@ -49,14 +49,14 @@ export class ProfileController {
   }
 
   @Get('/:id')
-  getProfileById(@Param('id') id: number, @GetUser() user: User) {
+  getProfileById(@Param('id') id: number, @GetAuthenticatedUser() user: User) {
     return this.profileService.getProfileById(id, user);
   }
 
   @Put('/:id')
   async updateProfile(
     @Param('id', ParseIntPipe) id: number,
-    @GetUser() user: User,
+    @GetAuthenticatedUser() user: User,
     @Body() updateProfileDto: UpdateProfileDto,
   ): Promise<Profile> {
     return await this.profileService.updateProfile(id, user, updateProfileDto);

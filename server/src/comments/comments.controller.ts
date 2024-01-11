@@ -6,13 +6,12 @@ import {
   Post,
   Delete,
   UseGuards,
-  Put,
-  NotFoundException,
   InternalServerErrorException,
+  Patch,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { User } from '../auth/user.entity';
-import { GetUser } from '../auth/get-user.decorator';
+import { GetAuthenticatedUser } from '../auth/get-authenticated-user.decorator';
 import { CommentService } from './comments.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
@@ -24,14 +23,14 @@ export class CommentController {
 
   @Post(':articleId')
   async createComment(
+    @GetAuthenticatedUser() user: User,
     @Param('articleId') articleId: number,
-    @GetUser() user: User,
     @Body() createCommentDto: CreateCommentDto,
   ) {
     try {
       return await this.commentService.createComment(
-        articleId,
         user,
+        articleId,
         createCommentDto,
       );
     } catch (error) {
@@ -44,11 +43,7 @@ export class CommentController {
     try {
       return await this.commentService.getCommentById(id);
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw new NotFoundException(error.message);
-      } else {
-        throw new InternalServerErrorException('Failed to fetch comment');
-      }
+      throw new InternalServerErrorException('Failed to fetch comment');
     }
   }
 
@@ -61,7 +56,7 @@ export class CommentController {
     }
   }
 
-  @Put(':id')
+  @Patch(':id')
   async updateComment(
     @Param('id') id: number,
     @Body() updateCommentDto: UpdateCommentDto,
@@ -69,11 +64,7 @@ export class CommentController {
     try {
       return await this.commentService.updateComment(id, updateCommentDto);
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw new NotFoundException(error.message);
-      } else {
-        throw new InternalServerErrorException('Failed to update comment');
-      }
+      throw new InternalServerErrorException('Failed to update comment');
     }
   }
 
@@ -82,11 +73,7 @@ export class CommentController {
     try {
       return await this.commentService.deleteComment(id);
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw new NotFoundException(error.message);
-      } else {
-        throw new InternalServerErrorException('Failed to delete comment');
-      }
+      throw new InternalServerErrorException('Failed to delete comment');
     }
   }
 
@@ -95,7 +82,6 @@ export class CommentController {
     try {
       return await this.commentService.getArticleCommentsById(articleId);
     } catch (error) {
-      // Handle errors, for simplicity, just returning an error response
       return { error: error.message };
     }
   }

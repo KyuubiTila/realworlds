@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Comment } from './comment.entity';
@@ -18,100 +14,66 @@ export class CommentService {
   ) {}
 
   async createComment(
-    articleId: number,
     user: User,
+    articleId: number,
     createCommentDto: CreateCommentDto,
   ): Promise<Comment> {
-    try {
-      const { body } = createCommentDto;
+    const { body } = createCommentDto;
 
-      const comment = this.commentRepository.create({
-        body,
-        articleId,
-        user,
-      });
+    const comment = this.commentRepository.create({
+      body,
+      articleId,
+      user,
+    });
 
-      return await this.commentRepository.save(comment);
-    } catch (error) {
-      throw new InternalServerErrorException('Failed to create comment');
-    }
+    return comment;
   }
 
   async getCommentById(id: number): Promise<Comment> {
-    try {
-      const comment = await this.commentRepository.findOne({ where: { id } });
+    const comment = await this.commentRepository.findOne({ where: { id } });
 
-      if (!comment) {
-        throw new NotFoundException('Comment not found');
-      }
-
-      return comment;
-    } catch (error) {
-      throw new InternalServerErrorException('Failed to fetch comment');
+    if (!comment) {
+      throw new NotFoundException('Comment not found');
     }
+
+    return comment;
   }
 
   async getAllComments(): Promise<Comment[]> {
-    try {
-      return await this.commentRepository.find();
-    } catch (error) {
-      throw new InternalServerErrorException('Failed to fetch comments');
-    }
+    return await this.commentRepository.find();
   }
 
   async updateComment(
     id: number,
     updateCommentDto: UpdateCommentDto,
   ): Promise<Comment> {
-    try {
-      const { body } = updateCommentDto;
+    const { body } = updateCommentDto;
 
-      const comment = await this.getCommentById(id);
+    const comment = await this.getCommentById(id);
 
-      comment.body = body;
+    comment.body = body;
 
-      return await this.commentRepository.save(comment);
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw new NotFoundException(error.message);
-      } else {
-        throw new InternalServerErrorException('Failed to update comment');
-      }
-    }
+    return comment;
   }
 
   async deleteComment(id: number): Promise<void> {
-    try {
-      const comment = await this.getCommentById(id);
+    const comment = await this.getCommentById(id);
 
-      await this.commentRepository.remove(comment);
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw new NotFoundException(error.message);
-      } else {
-        throw new InternalServerErrorException('Failed to delete comment');
-      }
-    }
+    await this.commentRepository.remove(comment);
   }
 
   async getArticleCommentsById(articleId: number): Promise<Comment[]> {
-    try {
-      const comments = await this.commentRepository.find({
-        where: { articleId },
-        relations: ['user'],
-      });
+    const comments = await this.commentRepository.find({
+      where: { articleId },
+      relations: ['user'],
+    });
 
-      if (!comments || comments.length === 0) {
-        throw new NotFoundException(
-          'No comments found for the specified article',
-        );
-      }
-
-      return comments;
-    } catch (error) {
-      throw new InternalServerErrorException(
-        'Failed to fetch article comments',
+    if (!comments || comments.length === 0) {
+      throw new NotFoundException(
+        'No comments found for the specified article',
       );
     }
+
+    return comments;
   }
 }

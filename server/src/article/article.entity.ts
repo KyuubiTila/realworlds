@@ -1,4 +1,4 @@
-import { ArticleFavorited } from 'src/article/article-favourited.entity';
+import { ArticleFavorited } from 'src/article_favorited/article-favourited.entity';
 import { User } from 'src/auth/user.entity';
 import { Comment } from 'src/comments/comment.entity';
 import {
@@ -10,9 +10,11 @@ import {
   UpdateDateColumn,
   OneToMany,
   ManyToOne,
+  Unique,
 } from 'typeorm';
-import { Tag } from './tag.entity';
+import { Tag } from '../tag/tag.entity';
 
+@Unique(['slug'])
 @Entity('article')
 export class Article extends BaseEntity {
   @PrimaryGeneratedColumn()

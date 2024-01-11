@@ -1,7 +1,3 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { BaseCommentDto } from './base-comment.dto';
 
-export class UpdateCommentDto {
-  @IsNotEmpty()
-  @IsString()
-  body: string;
-}
+export class UpdateCommentDto extends BaseCommentDto {}

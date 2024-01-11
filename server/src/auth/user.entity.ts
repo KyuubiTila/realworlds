@@ -1,4 +1,4 @@
-import { ArticleFavorited } from 'src/article/article-favourited.entity';
+import { ArticleFavorited } from 'src/article_favorited/article-favourited.entity';
 import { Article } from 'src/article/article.entity';
 import { Comment } from 'src/comments/comment.entity';
 import { Profile } from 'src/profile/profile.entity';

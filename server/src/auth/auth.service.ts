@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './user.entity';
-import { AuthCredentialDto } from './dto/auth-credential.dto';
+import { RegisterCredentialDto } from './dto/register-credential.dto';
 import { UserUpdateDto } from './dto/user-update.dto';
 import { JwtService } from '@nestjs/jwt';
 import { LoginCredentialDto } from './dto/login-credential.dto';
@@ -29,8 +29,10 @@ export class AuthService {
   }
 
   // SIGNUP
-  async signUpService(authCredentialDto: AuthCredentialDto): Promise<void> {
-    const { username, email, password } = authCredentialDto;
+  async signUpService(
+    registerCredentialDto: RegisterCredentialDto,
+  ): Promise<void> {
+    const { username, email, password } = registerCredentialDto;
 
     // Check if username or email already exists
     const existingUser = await this.userRepository.findOne({
@@ -107,10 +109,8 @@ export class AuthService {
       await this.userRepository.remove(user);
     } catch (error) {
       if (error.name === 'EntityNotFound') {
-        // Rethrow NotFoundException with a meaningful error message
         throw new NotFoundException(`User with ID ${id} not found`);
       }
-      // Rethrow other exceptions as is
       throw error;
     }
   }

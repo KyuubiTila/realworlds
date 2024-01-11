@@ -23,7 +23,7 @@ export const IndividualArticleCard = ({ singleArticle, allLiked }) => {
     deleteCommentMutation,
     updateCommentMutation,
   } = useComment(articleId);
-  console.log(articleComments);
+  // console.log(articleComments);
 
   useEffect(() => {
     refetchComments();
@@ -65,7 +65,7 @@ export const IndividualArticleCard = ({ singleArticle, allLiked }) => {
 
       if (response && response.data) {
         const newComment = response.data;
-        console.log('New Comment:', newComment);
+        // console.log('New Comment:', newComment);
         addCommentMutation.mutate(newComment);
       } else {
         alert(

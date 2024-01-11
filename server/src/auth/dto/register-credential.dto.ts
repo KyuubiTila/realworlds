@@ -6,7 +6,7 @@ import {
   IsEmail,
 } from 'class-validator';
 
-export class AuthCredentialDto {
+export class RegisterCredentialDto {
   @IsString({ message: 'Username must be a string' })
   @MinLength(4, {
     message: 'Username is too short, minimum length is 4 characters',

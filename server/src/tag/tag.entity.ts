@@ -7,7 +7,7 @@ import {
   UpdateDateColumn,
   ManyToOne,
 } from 'typeorm';
-import { Article } from './article.entity';
+import { Article } from '../article/article.entity';
 
 @Entity('tags')
 export class Tag extends BaseEntity {
