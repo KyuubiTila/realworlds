@@ -37,7 +37,7 @@ export class ArticleService {
       userId: user.id,
     });
 
-    return article;
+    return await this.articleRepository.save(article);
   }
 
   async getArticleById(id: number): Promise<Article> {
@@ -73,7 +73,7 @@ export class ArticleService {
     existingArticle.body = body;
     existingArticle.taglist = taglist;
 
-    return existingArticle;
+    return await this.articleRepository.save(existingArticle);
   }
 
   async deleteArticle(id: number, user: User): Promise<void> {

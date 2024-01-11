@@ -6,6 +6,7 @@ import {
   Post,
   Delete,
   UseGuards,
+  NotFoundException,
   InternalServerErrorException,
   Patch,
 } from '@nestjs/common';
@@ -43,7 +44,11 @@ export class CommentController {
     try {
       return await this.commentService.getCommentById(id);
     } catch (error) {
-      throw new InternalServerErrorException('Failed to fetch comment');
+      if (error instanceof NotFoundException) {
+        throw new NotFoundException(error.message);
+      } else {
+        throw new InternalServerErrorException('Failed to fetch comment');
+      }
     }
   }
 
@@ -64,7 +69,11 @@ export class CommentController {
     try {
       return await this.commentService.updateComment(id, updateCommentDto);
     } catch (error) {
-      throw new InternalServerErrorException('Failed to update comment');
+      if (error instanceof NotFoundException) {
+        throw new NotFoundException(error.message);
+      } else {
+        throw new InternalServerErrorException('Failed to update comment');
+      }
     }
   }
 
@@ -73,7 +82,11 @@ export class CommentController {
     try {
       return await this.commentService.deleteComment(id);
     } catch (error) {
-      throw new InternalServerErrorException('Failed to delete comment');
+      if (error instanceof NotFoundException) {
+        throw new NotFoundException(error.message);
+      } else {
+        throw new InternalServerErrorException('Failed to delete comment');
+      }
     }
   }
 
@@ -82,6 +95,7 @@ export class CommentController {
     try {
       return await this.commentService.getArticleCommentsById(articleId);
     } catch (error) {
+      // Handle errors, for simplicity, just returning an error response
       return { error: error.message };
     }
   }

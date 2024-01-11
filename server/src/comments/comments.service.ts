@@ -26,7 +26,7 @@ export class CommentService {
       user,
     });
 
-    return comment;
+    return await this.commentRepository.save(comment);
   }
 
   async getCommentById(id: number): Promise<Comment> {
@@ -53,7 +53,7 @@ export class CommentService {
 
     comment.body = body;
 
-    return comment;
+    return await this.commentRepository.save(comment);
   }
 
   async deleteComment(id: number): Promise<void> {
