@@ -29,7 +29,7 @@ export const IndividualArticleCard = ({ singleArticle, allLiked }) => {
     refetchComments();
   }, [refetchComments]);
 
-  const { body, title, favouritesCount, description, updatedAt, user } =
+  const { body, title, favouritesCount, description, user, createdAt } =
     singleArticle;
 
   const [liked, setLiked] = useState(allLiked.includes(singleArticle.id));
@@ -37,10 +37,10 @@ export const IndividualArticleCard = ({ singleArticle, allLiked }) => {
 
   useEffect(() => {
     // Calculate relative time using date-fns
-    const articleDate = new Date(updatedAt);
+    const articleDate = new Date(createdAt);
     const relativeTimeString = formatDistanceToNow(articleDate);
     setRelativeTime(relativeTimeString);
-  }, [updatedAt]);
+  }, [createdAt]);
 
   const initialValues = {
     body: '',

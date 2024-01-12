@@ -1,5 +1,6 @@
 import { useQueryClient, useQuery } from 'react-query';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const fetchUserDetails = async () => {
   try {
@@ -22,9 +23,6 @@ const fetchUserDetails = async () => {
     const user = details.data.user || {};
     const { id, username } = user;
 
-    // Store user data in local storage
-    localStorage.setItem('userDetails', JSON.stringify({ id, username }));
-
     return { id, username };
   } catch (error) {
     console.error('Error fetching user details:', error);
@@ -34,6 +32,7 @@ const fetchUserDetails = async () => {
 
 export const useAuth = () => {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   // Hydrate user details from local storage when the hook is initialized
   const storedUserDetails = localStorage.getItem('userDetails');
@@ -75,6 +74,7 @@ export const useAuth = () => {
       await queryClient.invalidateQueries('userDetails');
 
       await refetch();
+      navigate('/login');
     } catch (error) {
       console.error('Error logging out:', error);
     }

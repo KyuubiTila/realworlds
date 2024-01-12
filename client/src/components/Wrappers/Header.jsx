@@ -1,12 +1,12 @@
 import React from 'react';
+import { useEffect } from 'react';
 import { useState } from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import { useAuth } from '../../stores/auth';
-
 export const Header = () => {
   const [toggle, setToggle] = useState('hidden');
 
-  const { user, loggedIn, logOut } = useAuth();
+  const { user, loggedIn, logOut, userDetails } = useAuth();
   console.log(user);
   console.log(loggedIn);
 
@@ -18,6 +18,10 @@ export const Header = () => {
     logOut();
     changeToggle();
   };
+
+  useEffect(() => {
+    userDetails();
+  }, [userDetails]);
 
   return (
     <nav className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-600">
