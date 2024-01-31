@@ -7,6 +7,8 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinTable,
+  ManyToMany,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -50,4 +52,15 @@ export class User extends BaseEntity {
 
   @OneToMany(() => Comment, (comment) => comment.user)
   comments: Comment[];
+
+  @ManyToMany(() => User, (user) => user.following)
+  @JoinTable({
+    name: 'user_following',
+    joinColumn: { name: 'followedUserId' },
+    inverseJoinColumn: { name: 'followerUserId' },
+  })
+  followers: User[];
+
+  @ManyToMany(() => User, (user) => user.followers)
+  following: User[];
 }

@@ -5,6 +5,8 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   OneToOne,
   PrimaryGeneratedColumn,
   Unique,
@@ -22,12 +24,6 @@ export class Profile extends BaseEntity {
 
   @Column()
   image: string;
-
-  @Column({ default: 0 })
-  following: number;
-
-  @Column({ default: 0 })
-  followers: number;
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;

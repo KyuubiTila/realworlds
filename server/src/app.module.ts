@@ -7,6 +7,7 @@ import { ArticleModule } from './article/article.module';
 import { CommentsModule } from './comments/comments.module';
 import { TagModule } from './tag/tag.module';
 import { ArticleFavoritedModule } from './article_favorited/article_favorited.module';
+import { FollowModule } from './follow/follow.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { ArticleFavoritedModule } from './article_favorited/article_favorited.mo
     CommentsModule,
     TagModule,
     ArticleFavoritedModule,
+    FollowModule,
   ],
 })
 export class AppModule {}

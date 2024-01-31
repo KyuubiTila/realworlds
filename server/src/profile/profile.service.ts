@@ -50,6 +50,7 @@ export class ProfileService {
   async getProfileById(id: number, user: User): Promise<Profile> {
     const profile = await this.profileRepository.findOne({
       where: { id, userId: user.id },
+      relations: ['user', 'user.following', 'user.followers'],
     });
 
     if (!profile) {

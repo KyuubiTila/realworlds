@@ -59,7 +59,10 @@ export class AuthService {
 
   // GET USER BY ID
   async getUserByIdService(id: number): Promise<User> {
-    const found = await this.userRepository.findOne({ where: { id } });
+    const found = await this.userRepository.findOne({
+      where: { id },
+      relations: ['following', 'followers'],
+    });
     if (!found) {
       throw new NotFoundException(`User with ${id} not found`);
     }

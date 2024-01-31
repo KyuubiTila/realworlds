@@ -23,7 +23,7 @@ export class CommentService {
     const comment = this.commentRepository.create({
       body,
       articleId,
-      user,
+      userId: user.id,
     });
 
     return await this.commentRepository.save(comment);
