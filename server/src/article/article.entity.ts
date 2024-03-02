@@ -62,4 +62,7 @@ export class Article extends BaseEntity {
 
   @Column()
   userId: number;
+
+  @Column()
+  articleId: number;
 }

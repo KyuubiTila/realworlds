@@ -96,7 +96,9 @@ export class ArticleService {
   }
 
   async toggleLike(articleId: number, user: User): Promise<Article> {
-    const article = await this.getArticleById(articleId);
+    const article = await this.articleRepository.findOne({
+      where: { articleId },
+    });
 
     if (!article) {
       throw new NotFoundException('article not found');
