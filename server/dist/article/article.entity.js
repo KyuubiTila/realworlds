@@ -78,6 +78,10 @@ __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", Number)
 ], Article.prototype, "userId", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", Number)
+], Article.prototype, "articleId", void 0);
 exports.Article = Article = __decorate([
     (0, typeorm_1.Unique)(['slug']),
     (0, typeorm_1.Entity)('article')

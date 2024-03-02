@@ -18,4 +18,5 @@ export declare class Article extends BaseEntity {
     favoritedBy: ArticleFavorited[];
     comments: Comment[];
     userId: number;
+    articleId: number;
 }

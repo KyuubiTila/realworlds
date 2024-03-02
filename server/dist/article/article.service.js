@@ -75,7 +75,9 @@ let ArticleService = class ArticleService {
         await this.articleRepository.remove(article);
     }
     async toggleLike(articleId, user) {
-        const article = await this.getArticleById(articleId);
+        const article = await this.articleRepository.findOne({
+            where: { articleId },
+        });
         if (!article) {
             throw new common_1.NotFoundException('article not found');
         }
