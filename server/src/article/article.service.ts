@@ -97,7 +97,7 @@ export class ArticleService {
 
   async toggleLike(articleId: number, user: User): Promise<Article> {
     const article = await this.articleRepository.findOne({
-      where: { articleId },
+      where: { id: articleId },
     });
 
     if (!article) {

@@ -76,7 +76,7 @@ let ArticleService = class ArticleService {
     }
     async toggleLike(articleId, user) {
         const article = await this.articleRepository.findOne({
-            where: { articleId },
+            where: { id: articleId },
         });
         if (!article) {
             throw new common_1.NotFoundException('article not found');

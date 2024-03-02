@@ -51,7 +51,6 @@ export const CreateArticle = () => {
           },
         }
       );
-      // console.log(createdArticle);
       articleSuccess();
     } catch (error) {
       console.error('Error creating article:', error);

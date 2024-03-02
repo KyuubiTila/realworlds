@@ -39,7 +39,9 @@ export class ArticleController {
       if (error.code === 'ER_DUP_ENTRY') {
         throw new ConflictException('Article with this slug already exists');
       } else {
-        throw new InternalServerErrorException('Failed to create article');
+        throw new InternalServerErrorException(
+          'Failed to create article ' + error,
+        );
       }
     }
   }

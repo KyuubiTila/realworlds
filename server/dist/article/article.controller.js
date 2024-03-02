@@ -33,7 +33,7 @@ let ArticleController = class ArticleController {
                 throw new common_1.ConflictException('Article with this slug already exists');
             }
             else {
-                throw new common_1.InternalServerErrorException('Failed to create article');
+                throw new common_1.InternalServerErrorException('Failed to create article ' + error);
             }
         }
     }
