@@ -1,0 +1,14 @@
+# Server settings
+server:
+  host: localhost
+  port: 3001
+
+# Database configuration
+db:
+  type: 'mysql'
+  port: 3306
+  database: 'realworlds'
+
+# JWT settings
+jwt:
+  expiresIn: 3600
