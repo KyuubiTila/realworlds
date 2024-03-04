@@ -10,7 +10,7 @@ const comment_entity_1 = require("../comments/comment.entity");
 const profile_entity_1 = require("../profile/profile.entity");
 const dbConfig = config.get('db');
 exports.typeOrmConfig = {
-    type: dbConfig.type,
+    type: process.env.RDS_TYPE || dbConfig.type,
     host: process.env.RDS_HOSTNAME || dbConfig.host,
     port: process.env.RDS_PORT || dbConfig.port,
     username: process.env.RDS_USERNAME || dbConfig.username,
