@@ -5,8 +5,8 @@ server:
 
 # Database configuration
 db:
-  type: 'mysql'
-  port: 3306
+  type: 'postgres'
+  port: 5432
   database: 'realworlds'
 
 # JWT settings
