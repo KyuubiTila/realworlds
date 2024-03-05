@@ -5,6 +5,7 @@ db:
   username: postgres
   password: 'password123'
   synchronize: true
+  sslmode: 'require'
 
 jwt:
   secret: 'topsecret51'
