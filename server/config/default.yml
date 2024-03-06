@@ -8,7 +8,7 @@ db:
   type: 'postgres'
   port: 5432
   database: 'realworlds'
-  sslmode: true
+  ssl: true
 
 # JWT settings
 jwt:
