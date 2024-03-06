@@ -41,7 +41,7 @@ export class User extends BaseEntity {
   })
   updatedAt: Date;
 
-  @OneToOne(() => Profile, (profile) => profile.user, { cascade: true })
+  @OneToOne(() => Profile, (profile) => profile.user)
   profile: Profile;
 
   @OneToMany(() => ArticleFavorited, (favorited) => favorited.user)

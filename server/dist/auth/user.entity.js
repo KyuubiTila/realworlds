@@ -47,7 +47,7 @@ __decorate([
     __metadata("design:type", Date)
 ], User.prototype, "updatedAt", void 0);
 __decorate([
-    (0, typeorm_1.OneToOne)(() => profile_entity_1.Profile, (profile) => profile.user, { cascade: true }),
+    (0, typeorm_1.OneToOne)(() => profile_entity_1.Profile, (profile) => profile.user),
     __metadata("design:type", profile_entity_1.Profile)
 ], User.prototype, "profile", void 0);
 __decorate([
