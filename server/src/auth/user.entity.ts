@@ -14,6 +14,7 @@ import {
   PrimaryGeneratedColumn,
   Unique,
   UpdateDateColumn,
+  ManyToOne,
 } from 'typeorm';
 
 @Entity()
@@ -41,16 +42,18 @@ export class User extends BaseEntity {
   })
   updatedAt: Date;
 
-  @OneToOne(() => Profile, (profile) => profile.user)
+  @OneToOne(() => Profile, (profile) => profile.user, { cascade: true })
   profile: Profile;
 
-  @OneToMany(() => ArticleFavorited, (favorited) => favorited.user)
+  @OneToMany(() => ArticleFavorited, (favorited) => favorited.user, {
+    cascade: true,
+  })
   favoritedArticles: ArticleFavorited[];
 
-  @OneToMany(() => Article, (article) => article.user)
+  @OneToMany(() => Article, (article) => article.user, { cascade: true })
   articles: Article[];
 
-  @OneToMany(() => Comment, (comment) => comment.user)
+  @OneToMany(() => Comment, (comment) => comment.user, { cascade: true })
   comments: Comment[];
 
   @ManyToMany(() => User, (user) => user.following)

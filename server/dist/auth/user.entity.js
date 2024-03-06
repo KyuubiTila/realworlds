@@ -47,19 +47,21 @@ __decorate([
     __metadata("design:type", Date)
 ], User.prototype, "updatedAt", void 0);
 __decorate([
-    (0, typeorm_1.OneToOne)(() => profile_entity_1.Profile, (profile) => profile.user),
+    (0, typeorm_1.OneToOne)(() => profile_entity_1.Profile, (profile) => profile.user, { cascade: true }),
     __metadata("design:type", profile_entity_1.Profile)
 ], User.prototype, "profile", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => article_favourited_entity_1.ArticleFavorited, (favorited) => favorited.user),
+    (0, typeorm_1.OneToMany)(() => article_favourited_entity_1.ArticleFavorited, (favorited) => favorited.user, {
+        cascade: true,
+    }),
     __metadata("design:type", Array)
 ], User.prototype, "favoritedArticles", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => article_entity_1.Article, (article) => article.user),
+    (0, typeorm_1.OneToMany)(() => article_entity_1.Article, (article) => article.user, { cascade: true }),
     __metadata("design:type", Array)
 ], User.prototype, "articles", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => comment_entity_1.Comment, (comment) => comment.user),
+    (0, typeorm_1.OneToMany)(() => comment_entity_1.Comment, (comment) => comment.user, { cascade: true }),
     __metadata("design:type", Array)
 ], User.prototype, "comments", void 0);
 __decorate([
