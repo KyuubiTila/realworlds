@@ -18,4 +18,6 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
   database: process.env.RDS_DB_NAME || dbConfig.database,
   entities: [User, Profile, Article, Tag, ArticleFavorited, Comment],
   synchronize: process.env.TYPEORM_SYNC || dbConfig.synchronize,
+  // Enable SSL
+  ssl: process.env.TYPEORM_SSL || dbConfig.ssl,
 };

@@ -18,5 +18,6 @@ exports.typeOrmConfig = {
     database: process.env.RDS_DB_NAME || dbConfig.database,
     entities: [user_entity_1.User, profile_entity_1.Profile, article_entity_1.Article, tag_entity_1.Tag, article_favourited_entity_1.ArticleFavorited, comment_entity_1.Comment],
     synchronize: process.env.TYPEORM_SYNC || dbConfig.synchronize,
+    ssl: process.env.TYPEORM_SSL || dbConfig.ssl,
 };
 //# sourceMappingURL=typeorm.config.js.map
